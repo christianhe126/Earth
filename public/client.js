@@ -1,5 +1,6 @@
 import * as THREE from '/build/three.module.js';
 import { OrbitControls } from '/jsm/controls/OrbitControls.js';
+import { OBJLoader } from '/jsm/loaders/OBJLoader.js'
 import Stats from '/jsm/libs/stats.module.js';
 
 // global variables
@@ -38,12 +39,12 @@ const controls = new OrbitControls(camera, renderer.domElement);
 const earthGeometry = new THREE.SphereGeometry(0.6, 32, 32);
 
 // earth material
-const earthMaterial = new THREE.MeshPhongMaterial({
-    roughness: 1,
-    metalness: 0,
+const earthMaterial = new THREE.MeshBasicMaterial({
+    //roughness: 1,
+    //metalness: 0,
     map: THREE.ImageUtils.loadTexture('texture/earthmap1k.jpg'),
-    bumpMap: THREE.ImageUtils.loadTexture('texture/earthbump.jpg'),
-    bumpScale: 0.3
+    //bumpMap: THREE.ImageUtils.loadTexture('texture/earthbump.jpg'),
+    //bumpScale: 0.3
 });
 
 // earth mesh
@@ -68,7 +69,7 @@ const starGeometry = new THREE.SphereGeometry(80, 64, 64);
 
 // galaxy material
 const starMaterial = new THREE.MeshBasicMaterial({
-    map : THREE.ImageUtils.loadTexture('texture/galaxy.png'),
+    map: THREE.ImageUtils.loadTexture('texture/galaxy.png'),
     side: THREE.BackSide
 });
 
@@ -104,17 +105,88 @@ document.body.appendChild(stats.dom);
 // spinning animation
 const animate = () => {
     requestAnimationFrame(animate);
-    starMesh.rotation.y -= 0.002;
-    earthMesh.rotation.y -= 0.0015;
-    cloudMesh.rotation.y -= 0.001;
+    starMesh.rotation.y -= 0.002 * 2;
+    earthMesh.rotation.y -= 0.0015 * 2;
+    cloudMesh.rotation.y -= 0.001 * 2;
     controls.update();
     render();
     stats.update();
 };
 
+//pointsv2
+var picGeo = new THREE.PlaneGeometry( 200, 200 );
+var pointImg = THREE.ImageUtils.loadTexture('texture/point.jpg');
+var pic = new THREE.Mesh(picGeo, new THREE.MeshBasicMaterial({color:0xffdd99, pointImg, transparent:true, opacity:0.8, wireframe:false}));
+
+var box1 =  new THREE.Mesh(
+    new THREE.CircleGeometry(0.02, 32),
+    new THREE.MeshBasicMaterial({color: 0x00ff00} )
+);
+box1.rotation.y = Math.PI / 2
+box1 = positionToSphere(earthMesh, box1, 18.84055555555, 8.759722222, 0)
+earthMesh.add(box1)
+
+//satellite
+const loader = new OBJLoader();
+// load a resource
+var sat;
+loader.load(
+	// resource URL
+	'texture/sat.obj',
+	// called when resource is loaded
+	function ( object ) {
+        sat = object
+        sat.scale.set(0.01,0.01,0.01)
+        sat = positionToSphere(earthMesh, sat, 18.84055555555, 8.759722222, 0.5)
+        earthMesh.add(sat)
+		
+
+	},
+	// called when loading is in progresses
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+
+	}
+);
+
+
 // rendering
 const render = () => {
+    console.log(box1.rotation.y)
+    sat.rotation.z += 0.01
+    //box1.lookAt()
+    //box1.quaternion.copy(camera.quaternion)
     renderer.render(scene, camera);
 }
 
 animate();
+
+function positionToSphere(sphereMesh, mesh, lat, long, alt) {
+    // defaults for lat, long, and alt
+    lat = lat === undefined ? 0 : lat;
+    long = long === undefined ? 0 : long;
+    alt = alt === undefined ? 0 : alt;
+    // get geometry of the sphere mesh
+    var sGeo = sphereMesh.geometry;
+    // computer bounding sphere for geometry of the sphere mesh
+    sGeo.computeBoundingSphere();
+    // use radius value of Sphere instance at 
+    // boundingSphere of the geometry of sphereMesh
+    var radius = sGeo.boundingSphere.radius;
+    // position mesh to position of sphereMesh, and translate
+    // from there using lat, long, alt, and radius of sphereMesh
+    // using the copy, add, and apply Euler methods of the Vector3 class
+    var v1 = new THREE.Vector3(0, radius + alt, 0);
+    var x = Math.PI * lat;
+    var z = Math.PI * 2 * long;
+    var e1 = new THREE.Euler(x, 0, z)
+    mesh.position.copy(sphereMesh.position).add(v1).applyEuler(e1);
+    return mesh;
+};
