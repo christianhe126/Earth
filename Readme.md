@@ -12,4 +12,13 @@
 6. And finally open your Terminal or Command Prompt on root directroy and type: npm start
 
 7. It will open your default browser and you will able to see the output.# Earth-Three-js
-# Earth
+
+
+# Todo
+- Add a "run" button
+- onClick()
+  - make list read only/non clickable
+  - results should be in green
+- earth.js
+  - small version (next to the list)
+  - maximized version (optional)

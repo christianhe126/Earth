@@ -125,7 +125,7 @@ await loadJson().then(coordinates => {
     for(let i = 0; i < coordinates.length; i++)
     {
         var box1 =  new THREE.Mesh(
-            new THREE.SphereGeometry(0.01, 32),
+            new THREE.SphereGeometry(0.015, 32),
             new THREE.MeshBasicMaterial({color: 0xffffff} )
         );
         box1.rotation.y = Math.PI / 2
@@ -219,7 +219,7 @@ const render = () => {
         }
 
         satReferencePoint.rotation.y -= 0.01
-        starMesh.rotation.y -= 0.01;
+        //starMesh.rotation.y -= 0.01;
 
         for(let i = 0; i < points.length; i++)
         {
@@ -255,8 +255,8 @@ function positionToSphere(sphereMesh, mesh, lat, long, alt) {
     var phi = (90-lat)*(Math.PI/180),
     theta = (long+180)*(Math.PI/180)
 
-    //phi = lat
-    //theta = long
+    phi = lat
+    theta = long
 
     var x = -((radius) * Math.sin(phi)*Math.cos(theta)),
     z = ((radius) * Math.sin(phi)*Math.sin(theta)),
