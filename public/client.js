@@ -8,6 +8,11 @@ let scene;
 let camera;
 let renderer;
 const canvas = document.querySelector('.webgl');
+let satRotation = false;
+let satStartRotation = -Math.PI / 2.3;
+
+//Legend setup
+document.getElementById("run").addEventListener("click", runPressed)
 
 // scene setup
 scene = new THREE.Scene();
@@ -49,6 +54,7 @@ const earthMaterial = new THREE.MeshBasicMaterial({
 
 // earth mesh
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+//earthMesh.rotation.x = Math.PI / 4
 scene.add(earthMesh);
 
 // cloud Geometry
@@ -105,64 +111,130 @@ document.body.appendChild(stats.dom);
 // spinning animation
 const animate = () => {
     requestAnimationFrame(animate);
-    starMesh.rotation.y -= 0.002 * 2;
-    earthMesh.rotation.y -= 0.0015 * 2;
-    cloudMesh.rotation.y -= 0.001 * 2;
+    starMesh.rotation.y -= 0.002 * 0.1;
+    earthMesh.rotation.y -= 0.0015 * 0.5;
+    cloudMesh.rotation.y -= 0.001 * 0.5;
     controls.update();
     render();
     stats.update();
 };
 
-//pointsv2
-var picGeo = new THREE.PlaneGeometry( 200, 200 );
-var pointImg = THREE.ImageUtils.loadTexture('texture/point.jpg');
-var pic = new THREE.Mesh(picGeo, new THREE.MeshBasicMaterial({color:0xffdd99, pointImg, transparent:true, opacity:0.8, wireframe:false}));
-
-var box1 =  new THREE.Mesh(
-    new THREE.CircleGeometry(0.02, 32),
-    new THREE.MeshBasicMaterial({color: 0x00ff00} )
-);
-box1.rotation.y = Math.PI / 2
-box1 = positionToSphere(earthMesh, box1, 18.84055555555, 8.759722222, 0)
-earthMesh.add(box1)
+//Load coordinates
+var points = []
+await loadJson().then(coordinates => {
+    for(let i = 0; i < coordinates.length; i++)
+    {
+        var box1 =  new THREE.Mesh(
+            new THREE.SphereGeometry(0.01, 32),
+            new THREE.MeshBasicMaterial({color: 0xffffff} )
+        );
+        box1.rotation.y = Math.PI / 2
+        box1 = positionToSphere(earthMesh, box1, coordinates[i].lat, coordinates[i].lon, -0.01)
+        points.push(
+            {geo: box1,
+            lat: coordinates[i].lat,
+            lon: coordinates[i].lon}
+        )
+        earthMesh.add(points[i].geo)
+    }
+})
 
 //satellite
-const loader = new OBJLoader();
-// load a resource
+var satReferencePoint = new THREE.Mesh(new THREE.SphereGeometry(0.0001, 32, 32), new THREE.MeshBasicMaterial())
+satReferencePoint.position.x = 0;
+satReferencePoint.position.y = 0;
+satReferencePoint.position.z = 0;
+satReferencePoint.rotation.y = satStartRotation
+scene.add(satReferencePoint)
+
 var sat;
-loader.load(
-	// resource URL
-	'texture/sat.obj',
-	// called when resource is loaded
-	function ( object ) {
-        sat = object
-        sat.scale.set(0.01,0.01,0.01)
-        sat = positionToSphere(earthMesh, sat, 18.84055555555, 8.759722222, 0.5)
-        earthMesh.add(sat)
-		
+const loader = new OBJLoader();
+    loader.load(
+        // resource URL
+        'texture/sat.obj',
+        // called when resource is loaded
+        function ( object ) {
+            sat = object
+            sat.scale.set(0.01,0.01,0.01)
+            //sat.rotation.z = 1.2
+            sat = positionToSphere(satReferencePoint, sat, (90-0)*(Math.PI/180) , (0+180)*(Math.PI/180), 1.2)
+            satReferencePoint.add(sat);
+            
+    
+        },
+        // called when loading is in progresses
+        function ( xhr ) {
+    
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+    
+        },
+        // called when loading has errors
+        function ( error ) {
+    
+            console.log( 'An error happened' );
+    
+        }
+    );
+//keycontrol
+window.addEventListener( 'keydown', function ( event ) {
 
-	},
-	// called when loading is in progresses
-	function ( xhr ) {
+    switch ( event.key ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        case "ArrowLeft": // Q
+            earthMesh.rotation.y -= 0.1
+            //control.setSpace( control.space === 'local' ? 'world' : 'local' );
+            break;
 
-	},
-	// called when loading has errors
-	function ( error ) {
+        case "ArrowRight": // W
+            earthMesh.rotation.y += 0.1
+            break;
+        
+        case "ArrowDown": // W
+            earthMesh.rotation.x -= 0.1
+        break;
 
-		console.log( 'An error happened' );
+        case "ArrowUp": // W
+            earthMesh.rotation.x += 0.1
+        break;
+    }
 
-	}
-);
+} );
 
-
+var count = 0
 // rendering
 const render = () => {
-    console.log(box1.rotation.y)
-    sat.rotation.z += 0.01
-    //box1.lookAt()
-    //box1.quaternion.copy(camera.quaternion)
+    count++;
+    //Satellite
+    sat.rotation.x += 0.003
+    if(satRotation == true && satReferencePoint.rotation.y >= -Math.PI * 2 + satStartRotation)
+    {
+        if(count % 20 == 0)
+        {
+        if(count % 3 == 0)
+            document.getElementById("output").innerText = "Calculating sphere..."
+        else if(count % 3 == 1)
+            document.getElementById("output").innerText = "Calculating sphere.."
+        else if(count % 3 == 2)
+            document.getElementById("output").innerText = "Calculating sphere."
+        }
+
+        satReferencePoint.rotation.y -= 0.01
+        starMesh.rotation.y -= 0.01;
+
+        for(let i = 0; i < points.length; i++)
+        {
+            if(i < (satReferencePoint.rotation.y / (-Math.PI * 2 + satStartRotation)) * points.length && i % 1 == 0)
+                points[i].geo.material.color.setHex(0x990276)
+            //console.log(satReferencePoint.rotation.y / (-Math.PI * 2 + satStartRotation))
+        }
+        console.log(satReferencePoint.rotation.y / (-Math.PI * 2 + satStartRotation))
+    }
+    else if(satRotation == true)
+    {
+        satReferencePoint.rotation.y = satStartRotation
+        satRotation = false
+        document.getElementById("output").innerText = "Finished \n \n we took 50 photos out of 100 with a total value of 300k$"
+    }
     renderer.render(scene, camera);
 }
 
@@ -173,20 +245,36 @@ function positionToSphere(sphereMesh, mesh, lat, long, alt) {
     lat = lat === undefined ? 0 : lat;
     long = long === undefined ? 0 : long;
     alt = alt === undefined ? 0 : alt;
+
     // get geometry of the sphere mesh
     var sGeo = sphereMesh.geometry;
-    // computer bounding sphere for geometry of the sphere mesh
     sGeo.computeBoundingSphere();
-    // use radius value of Sphere instance at 
-    // boundingSphere of the geometry of sphereMesh
-    var radius = sGeo.boundingSphere.radius;
-    // position mesh to position of sphereMesh, and translate
-    // from there using lat, long, alt, and radius of sphereMesh
-    // using the copy, add, and apply Euler methods of the Vector3 class
-    var v1 = new THREE.Vector3(0, radius + alt, 0);
-    var x = Math.PI * lat;
-    var z = Math.PI * 2 * long;
-    var e1 = new THREE.Euler(x, 0, z)
-    mesh.position.copy(sphereMesh.position).add(v1).applyEuler(e1);
+    var radius = sGeo.boundingSphere.radius + alt;
+
+    //calculate position
+    var phi = (90-lat)*(Math.PI/180),
+    theta = (long+180)*(Math.PI/180)
+
+    phi = lat
+    theta = long
+
+    var x = -((radius) * Math.sin(phi)*Math.cos(theta)),
+    z = ((radius) * Math.sin(phi)*Math.sin(theta)),
+    y = ((radius) * Math.cos(phi));
+    mesh.position.x = x
+    mesh.position.y = y
+    mesh.position.z = z
+
     return mesh;
 };
+
+async function loadJson() {
+    //Load JSON
+    var _data;
+    await fetch('/data/coordinates.json').then(response => response.json()).then(data => _data = data.values)
+    return _data
+}
+
+function runPressed() {
+    satRotation = true;
+}

@@ -196,4 +196,58 @@ body{
        width: 100%;
    }
 }
+
+.floating-menu {
+    font-family: sans-serif;
+    background: black;
+    border-style: solid;
+    border-color: white;
+    border-radius: 10px;
+    border-width: 1px;
+    padding: 5px;;
+    width: 130px;
+    height: 400px;
+    z-index: 200;
+    top: 70px;
+    left: 20px;
+    position: fixed;
+  }
+
+  .floating-menu2 {
+    font-family: sans-serif;
+    background: black;
+    border-style: solid;
+    border-color: white;
+    border-radius: 10px;
+    border-width: 1px;
+    padding: 5px;;
+    width: 200px;
+    height: 100px;
+    z-index: 200;
+    top: 70px;
+    left: 190px;
+    position: fixed;
+  }
+
+  .button {
+    border: none;
+    color: white;
+    background-color: blueviolet;
+    padding: 4px 42px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+  .h3 {
+    color: white;
+  }
+
+  .h4 {
+    color: white;
+    font-size: small;
+  }
 /*xx** making responsive ***xx*/
