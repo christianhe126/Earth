@@ -130,15 +130,17 @@ const animate = () => {
     stats.update();
 };
 
+
 //Load coordinates
 var points = []
 await loadJson().then(coordinates => {
     for (let i = 0; i < coordinates.length; i++) {
         var box1 = new THREE.Mesh(
             new THREE.SphereGeometry(0.015, 32),
-            new THREE.MeshBasicMaterial({ color: 0x990276 })
+            new THREE.MeshBasicMaterial({ color: 0x990276})
         );
-        box1.rotation.y = Math.PI / 2
+        //box1.material.transparent = true;
+        //box1.material.opacity = 0
         box1 = positionToSphere(earthMesh, box1, coordinates[i].lat, coordinates[i].lon, -0.01)
         points.push(
             {
@@ -147,7 +149,7 @@ await loadJson().then(coordinates => {
                 lon: coordinates[i].lon
             }
         )
-        earthMesh.add(points[i].geo)
+        //earthMesh.add(points[i].geo)
     }
 })
 
@@ -170,6 +172,7 @@ loader.load(
         sat.scale.set(0.01, 0.01, 0.01)
         //sat.rotation.z = 1.2
         sat = positionToSphere(satReferencePoint, sat, (90 - 0) * (Math.PI / 180), (0 + 180) * (Math.PI / 180), 1.2)
+        sat.rotation.z = Math.PI / 2
         satReferencePoint.add(sat);
 
 
@@ -217,15 +220,15 @@ var count = 0
 const render = () => {
     count++;
     //Satellite
-    sat.rotation.x += 0.00075
+    sat.rotation.x += 0.0005
     if (satRotation == true && satReferencePoint.rotation.y >= -Math.PI * 2 + satStartRotation) {
         if (count % 20 == 0) {
             if (count % 3 == 0)
-                document.getElementById("output").innerText = "Calculating positions..."
+                document.getElementById("output").innerText = "Calculating positions with given input..."
             else if (count % 3 == 1)
-                document.getElementById("output").innerText = "Calculating positions.."
+                document.getElementById("output").innerText = "Calculating positions with given input.."
             else if (count % 3 == 2)
-                document.getElementById("output").innerText = "Calculating positions."
+                document.getElementById("output").innerText = "Calculating positions with given input."
         }
 
         satReferencePoint.rotation.y -= 0.01
@@ -241,7 +244,7 @@ const render = () => {
     else if (satRotation == true) {
         satReferencePoint.rotation.y = satStartRotation
         satRotation = false
-        document.getElementById("output").innerText = "We got a result! \n \n we calculated the optimum with 24 photos out of 50 with a total value of 54.000$"
+        document.getElementById("output").innerText = "We got a result! \n \n we calculated the optimum in 9.24 sec! See your results on the right."
         var list2 = document.getElementById("resultList")
 
         for (let j = 0; j < points.length; j++) {
@@ -302,6 +305,7 @@ function defaultValuesPressed() {
     this.previousElementSibling.innerHTML = this.value;
     for (let j = 0; j < points.length; j++) {
         addChild("N " + points[j].lat + " W " + points[j].lon, true) 
+        earthMesh.add(points[j].geo)
     }
 }
 
