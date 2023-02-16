@@ -21,11 +21,29 @@
         </nav>
     </div>
     <nav class="floating-menu">
-        <h3 class="h3">Legend</h3>
-        <button class="button"id="run">Run</button>
+        <h3 class="h3">1. Input coordinates</h3>
+        <ul id="list">
+            
+            <li data-new="true">
+                <span>add another</span>
+                <input type="text">
+            </li>
+                
+        </ul>
+        <button class="button2"id="defaultCoordinates">Default values</button>
+    </nav>
+    <nav class="floating-menu3">
+        <h3 class="h3">2. Run</h3>
+        <button class="button"id="run">Run quantum calculation</button>
     </nav>
     <nav class="floating-menu2">
-        <h3 id="output" class="h4">Status</h3>
+        <h3 id="output" class="h3"></h3>
+    </nav>
+    <nav class="floating-menu4">
+        <h3 class="h3">3. Output</h3>
+        <ul id="resultList" class="list-group outputList">
+            
+          </ul>
     </nav>
     <canvas class="webgl"></canvas>
 </body>

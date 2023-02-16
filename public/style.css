@@ -4,10 +4,12 @@
     margin: 0%;
     padding: 0%;
     box-sizing: border-box;
+    /*background-color: black;*/
 }
 
 body{
     overflow: hidden;
+    background-color: black;
 }
 
 .container{
@@ -205,15 +207,15 @@ body{
     border-radius: 10px;
     border-width: 1px;
     padding: 5px;;
-    width: 130px;
-    height: 400px;
+    width: 200px;
+    height: 370px;
     z-index: 200;
     top: 70px;
     left: 20px;
     position: fixed;
+    overflow:hidden; overflow-y:scroll;
   }
-
-  .floating-menu2 {
+  .floating-menu3 {
     font-family: sans-serif;
     background: black;
     border-style: solid;
@@ -224,8 +226,41 @@ body{
     width: 200px;
     height: 100px;
     z-index: 200;
+    top: 450px;
+    left: 20px;
+    position: fixed;
+  }
+  .floating-menu4 {
+    font-family: sans-serif;
+    background: black;
+    border-style: solid;
+    border-color: white;
+    border-radius: 10px;
+    border-width: 1px;
+    padding: 5px;;
+    width: 200px;
+    height: 300px;
+    z-index: 200;
+    top: 400px;
+    right: 20px;
+    position: fixed;
+    overflow:hidden; overflow-y:scroll;
+  }
+
+  .floating-menu2 {
+    font-family: sans-serif;
+    /*background: black;
+    border-style: solid;*/
+    /*border-color: white;*/
+    border-radius: 10px;
+    border-width: 1px;
+    padding: 5px;;
+    width: 700px;
+    height: 200px;
+    z-index: 200;
     top: 70px;
-    left: 190px;
+    left: 50%;
+    transform: translate(-50%);
     position: fixed;
   }
 
@@ -241,13 +276,90 @@ body{
     margin: 4px 2px;
     cursor: pointer;
   }
+  .button2 {
+    border: none;
+    color: white;
+    background-color: blueviolet;
+    padding: 2px 42px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    top: 400px;
+    cursor: pointer;
+    position: fixed;
+  }
 
   .h3 {
-    color: white;
+    color: #622ff0;
+    font-family: "Andale Mono", AndaleMono, monospace; font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: "Andale Mono", AndaleMono, monospace; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: "Andale Mono", AndaleMono, monospace; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: "Andale Mono", AndaleMono, monospace; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: "Andale Mono", AndaleMono, monospace; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.57143px;
   }
 
   .h4 {
-    color: white;
+    color: rgb(0, 0, 0);
     font-size: small;
   }
 /*xx** making responsive ***xx*/
+
+li {
+	margin: 10px;
+    font-size: small;
+}
+span {
+	border-bottom: 1px;/* dashed transparent;*/
+}
+li[data-new="true"] {
+	color: rgb(255, 255, 255);
+}
+
+li input {
+	display: none;
+	border: 0;
+	outline:0;
+	padding:0;
+}
+
+li.edit span {
+	display: none;
+}
+
+li.edit input {
+	display: initial;
+	/*border-bottom: 1px dashed rgb(255, 255, 255);*/
+    background-color: black;
+    color: white;
+}
+
+/* Pure demostration design */
+body {
+	font-family: sans-serif;
+	color: #ffffff;
+	/*margin: 5% 30%;*/
+    margin-top: 50px;
+}
+h1,h3{
+	margin:5px;
+}
+ul {
+	/*list-decoration:circle;*/
+    margin-left: 18px;
+}
+
+.webgl {
+    width: 20%;
+}
+
+.outputList {
+    list-style-type: none;
+    margin-left: 3px;
+}
+
+.greenList {
+    background-color: rgb(153, 255, 0);
+    color: rgb(0, 0, 0);
+}
+
+.listExtra {
+    overflow:hidden; overflow-y:scroll;
+}

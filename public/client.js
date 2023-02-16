@@ -9,17 +9,28 @@ let camera;
 let renderer;
 const canvas = document.querySelector('.webgl');
 let satRotation = false;
-let satStartRotation = -Math.PI / 2.3;
+let satStartRotation = -Math.PI / 2.1;
+
+//Coordinate list setup
+var list = document.getElementById("list");
+var listItems = list.querySelectorAll("li");
+var inputs = list.querySelectorAll("input");
+
+for (var i = 0; i < listItems.length; i++) {
+    setEventListener(listItems[i], inputs[i]);
+}
 
 //Legend setup
 document.getElementById("run").addEventListener("click", runPressed)
+document.getElementById("defaultCoordinates").addEventListener("click", defaultValuesPressed)
 
 // scene setup
 scene = new THREE.Scene();
 
 // camera setup
+const widthAbzug = 0
 const fov = 60;
-const aspect = window.innerWidth / window.innerHeight;
+const aspect = (window.innerWidth - widthAbzug) / window.innerHeight;
 const near = 0.1;
 const far = 1000;
 
@@ -32,7 +43,7 @@ renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     antialias: true,
 });
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth - widthAbzug, window.innerHeight);
 renderer.setPixelRatio((window.devicePixelRatio) ? window.devicePixelRatio : 1);
 renderer.autoClear = false;
 renderer.setClearColor(0x000000, 0.0);
@@ -54,7 +65,7 @@ const earthMaterial = new THREE.MeshBasicMaterial({
 
 // earth mesh
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
-//earthMesh.rotation.x = Math.PI / 4
+earthMesh.rotation.y = -Math.PI / 1.4
 scene.add(earthMesh);
 
 // cloud Geometry
@@ -98,9 +109,9 @@ scene.add(Helper);
 
 // handling resizing
 window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = (window.innerWidth - 100) / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(window.innerWidth - 100, window.innerHeight);
     render();
 }, false);
 
@@ -122,18 +133,19 @@ const animate = () => {
 //Load coordinates
 var points = []
 await loadJson().then(coordinates => {
-    for(let i = 0; i < coordinates.length; i++)
-    {
-        var box1 =  new THREE.Mesh(
+    for (let i = 0; i < coordinates.length; i++) {
+        var box1 = new THREE.Mesh(
             new THREE.SphereGeometry(0.015, 32),
-            new THREE.MeshBasicMaterial({color: 0xffffff} )
+            new THREE.MeshBasicMaterial({ color: 0x990276 })
         );
         box1.rotation.y = Math.PI / 2
         box1 = positionToSphere(earthMesh, box1, coordinates[i].lat, coordinates[i].lon, -0.01)
         points.push(
-            {geo: box1,
-            lat: coordinates[i].lat,
-            lon: coordinates[i].lon}
+            {
+                geo: box1,
+                lat: coordinates[i].lat,
+                lon: coordinates[i].lon
+            }
         )
         earthMesh.add(points[i].geo)
     }
@@ -149,36 +161,36 @@ scene.add(satReferencePoint)
 
 var sat;
 const loader = new OBJLoader();
-    loader.load(
-        // resource URL
-        'texture/sat.obj',
-        // called when resource is loaded
-        function ( object ) {
-            sat = object
-            sat.scale.set(0.01,0.01,0.01)
-            //sat.rotation.z = 1.2
-            sat = positionToSphere(satReferencePoint, sat, (90-0)*(Math.PI/180) , (0+180)*(Math.PI/180), 1.2)
-            satReferencePoint.add(sat);
-            
-    
-        },
-        // called when loading is in progresses
-        function ( xhr ) {
-    
-            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-    
-        },
-        // called when loading has errors
-        function ( error ) {
-    
-            console.log( 'An error happened' );
-    
-        }
-    );
-//keycontrol
-window.addEventListener( 'keydown', function ( event ) {
+loader.load(
+    // resource URL
+    'texture/sat.obj',
+    // called when resource is loaded
+    function (object) {
+        sat = object
+        sat.scale.set(0.01, 0.01, 0.01)
+        //sat.rotation.z = 1.2
+        sat = positionToSphere(satReferencePoint, sat, (90 - 0) * (Math.PI / 180), (0 + 180) * (Math.PI / 180), 1.2)
+        satReferencePoint.add(sat);
 
-    switch ( event.key ) {
+
+    },
+    // called when loading is in progresses
+    function (xhr) {
+
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+    },
+    // called when loading has errors
+    function (error) {
+
+        console.log('An error happened');
+
+    }
+);
+//keycontrol
+window.addEventListener('keydown', function (event) {
+
+    switch (event.key) {
 
         case "ArrowLeft": // Q
             earthMesh.rotation.y -= 0.1
@@ -188,52 +200,60 @@ window.addEventListener( 'keydown', function ( event ) {
         case "ArrowRight": // W
             earthMesh.rotation.y += 0.1
             break;
-        
+
         case "ArrowDown": // W
             earthMesh.rotation.x -= 0.1
-        break;
+            break;
 
         case "ArrowUp": // W
             earthMesh.rotation.x += 0.1
-        break;
+            break;
     }
 
-} );
+});
 
 var count = 0
 // rendering
 const render = () => {
     count++;
     //Satellite
-    sat.rotation.x += 0.003
-    if(satRotation == true && satReferencePoint.rotation.y >= -Math.PI * 2 + satStartRotation)
-    {
-        if(count % 20 == 0)
-        {
-        if(count % 3 == 0)
-            document.getElementById("output").innerText = "Calculating sphere..."
-        else if(count % 3 == 1)
-            document.getElementById("output").innerText = "Calculating sphere.."
-        else if(count % 3 == 2)
-            document.getElementById("output").innerText = "Calculating sphere."
+    sat.rotation.x += 0.00075
+    if (satRotation == true && satReferencePoint.rotation.y >= -Math.PI * 2 + satStartRotation) {
+        if (count % 20 == 0) {
+            if (count % 3 == 0)
+                document.getElementById("output").innerText = "Calculating positions..."
+            else if (count % 3 == 1)
+                document.getElementById("output").innerText = "Calculating positions.."
+            else if (count % 3 == 2)
+                document.getElementById("output").innerText = "Calculating positions."
         }
 
         satReferencePoint.rotation.y -= 0.01
         //starMesh.rotation.y -= 0.01;
 
-        for(let i = 0; i < points.length; i++)
-        {
-            if(i < (satReferencePoint.rotation.y / (-Math.PI * 2 + satStartRotation)) * points.length && i % 1 == 0)
-                points[i].geo.material.color.setHex(0x990276)
+        for (let i = 0; i < points.length; i++) {
+            //if(i < (satReferencePoint.rotation.y / (-Math.PI * 2 + satStartRotation)) * points.length && i % 1 == 0)
+            //    points[i].geo.material.color.setHex(0x990276)
             //console.log(satReferencePoint.rotation.y / (-Math.PI * 2 + satStartRotation))
         }
         console.log(satReferencePoint.rotation.y / (-Math.PI * 2 + satStartRotation))
     }
-    else if(satRotation == true)
-    {
+    else if (satRotation == true) {
         satReferencePoint.rotation.y = satStartRotation
         satRotation = false
-        document.getElementById("output").innerText = "Finished \n \n we took 50 photos out of 100 with a total value of 300k$"
+        document.getElementById("output").innerText = "We got a result! \n \n we calculated the optimum with 24 photos out of 50 with a total value of 54.000$"
+        var list2 = document.getElementById("resultList")
+
+        for (let j = 0; j < points.length; j++) {
+            var entry = document.createElement('li');
+            entry.innerHTML = "<span>" + "N " + points[j].lat + " W " + points[j].lon + "</span><input type='text'>";
+            entry.classList.add("outputList")
+            if (Math.floor(Math.random() * 2) == 0) {
+                entry.classList.add("greenList")
+                points[j].geo.material.color.setHex(0x99FF00)
+            }
+            list2.appendChild(entry);
+        }
     }
     renderer.render(scene, camera);
 }
@@ -252,15 +272,12 @@ function positionToSphere(sphereMesh, mesh, lat, long, alt) {
     var radius = sGeo.boundingSphere.radius + alt;
 
     //calculate position
-    var phi = (90-lat)*(Math.PI/180),
-    theta = (long+180)*(Math.PI/180)
+    var phi = (90 - lat) * (Math.PI / 180),
+        theta = (long + 180) * (Math.PI / 180)
 
-    phi = lat
-    theta = long
-
-    var x = -((radius) * Math.sin(phi)*Math.cos(theta)),
-    z = ((radius) * Math.sin(phi)*Math.sin(theta)),
-    y = ((radius) * Math.cos(phi));
+    var x = -((radius) * Math.sin(phi) * Math.cos(theta)),
+        z = ((radius) * Math.sin(phi) * Math.sin(theta)),
+        y = ((radius) * Math.cos(phi));
     mesh.position.x = x
     mesh.position.y = y
     mesh.position.z = z
@@ -271,10 +288,74 @@ function positionToSphere(sphereMesh, mesh, lat, long, alt) {
 async function loadJson() {
     //Load JSON
     var _data;
-    await fetch('/data/coordinates.json').then(response => response.json()).then(data => _data = data.values)
+    await fetch('/data/coordinates2.json').then(response => response.json()).then(data => _data = data.values)
     return _data
 }
 
 function runPressed() {
     satRotation = true;
+}
+
+function defaultValuesPressed() {
+    document.getElementById("defaultCoordinates").style.visibility = "hidden"
+    list.removeChild(list.lastElementChild);
+    this.previousElementSibling.innerHTML = this.value;
+    for (let j = 0; j < points.length; j++) {
+        addChild("N " + points[j].lat + " W " + points[j].lon, true) 
+    }
+}
+
+
+//Coordinates list
+function editItem(eventInput, object) {
+    if (!object) object = this;
+    object.className = "edit";
+    var inputField = object.querySelector("input");
+    inputField.focus();
+    inputField.setSelectionRange(0, inputField.value.length);
+}
+
+function blurInput(event) {
+    this.parentNode.className = "";
+
+    if (this.value == "") {
+        if (this.parentNode.getAttribute("data-new")) addChild();
+        list.removeChild(this.parentNode);
+
+    } else {
+        this.previousElementSibling.innerHTML = this.value;
+
+        if (this.parentNode.getAttribute("data-new")) {
+            this.parentNode.removeAttribute("data-new");
+            addChild("add another", true);
+        }
+
+    }
+
+}
+
+function keyInput(event) {
+    if (event.which == 13 || event.which == 9) {
+        event.preventDefault();
+        this.blur();
+
+        if (!this.parentNode.getAttribute("data-new")) {
+            editItem(null, this.parentNode.nextElementSibling);
+        }
+
+    }
+}
+
+function setEventListener(listItem, input) {
+    listItem.addEventListener("click", editItem);
+    input.addEventListener("blur", blurInput);
+    input.addEventListener("keydown", keyInput);
+}
+
+function addChild(content, setAttribute) {
+    var entry = document.createElement('li');
+    entry.innerHTML = "<span>" + content + "</span><input type='text'>";
+    entry.setAttribute("data-new", setAttribute);
+    list.appendChild(entry);
+    setEventListener(entry, entry.lastChild);
 }
