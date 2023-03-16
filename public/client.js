@@ -109,15 +109,11 @@ scene.add(Helper);
 
 // handling resizing
 window.addEventListener('resize', () => {
-    camera.aspect = (window.innerWidth - 100) / window.innerHeight;
+    camera.aspect = (window.innerWidth) / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth - 100, window.innerHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight);
     render();
 }, false);
-
-// current fps
-const stats = Stats();
-document.body.appendChild(stats.dom);
 
 // spinning animation
 const animate = () => {
@@ -251,7 +247,7 @@ const render = () => {
             var entry = document.createElement('li');
             entry.innerHTML = "<span>" + "N " + points[j].lat + " W " + points[j].lon + "</span><input type='text'>";
             entry.classList.add("outputList")
-            if (Math.floor(Math.random() * 2) == 0) {
+            if (Math.floor(Math.random() * 3) == 0) {
                 entry.classList.add("greenList")
                 points[j].geo.material.color.setHex(0x99FF00)
             }

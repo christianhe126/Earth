@@ -290,6 +290,21 @@ body{
     cursor: pointer;
     position: fixed;
   }
+  .button3 {
+    border: none;
+    color: white;
+    background-color: blueviolet;
+    padding: 4px 42px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 10px;
+    right: 35px;
+  }
 
   .h3 {
     color: #622ff0;
@@ -362,4 +377,18 @@ ul {
 
 .listExtra {
     overflow:hidden; overflow-y:scroll;
+}
+
+.imgClass {
+    position: fixed;
+    top: 10px;
+    left: 17px
+}
+
+.navigation {
+    position: fixed;
+    display: inline-block;
+    top: 0px;
+    right: 0px;
+    height: 15px;
 }
